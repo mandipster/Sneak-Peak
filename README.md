@@ -27,7 +27,7 @@ Replace <host> with the target host IP address and <ports> with the comma-separa
 
 python main.py google.com -p 80,443
 
-<!-- Note: Be cautious when scanning external hosts, as scanning all ports without permission may be illegal. In our testing, we only scanned a limited number of ports for demonstration purposes. -->
+Note: Be cautious when scanning external hosts, as scanning all ports without permission may be illegal. In our testing, we only scanned a limited number of ports for demonstration purposes.
 
 Testing on Kali Linux (Output for Kali Linux VM.png):
 
