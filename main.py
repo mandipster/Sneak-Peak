@@ -1,8 +1,16 @@
 import socket
 import argparse
+import threading
 
-#function to check if port on host is open or closed 
-def scan_port(host, port, timeout=2):
+def scan_port(host, port, timeout=1):
+
+    # Function to check if a port on the host is open or closed.
+    
+    # Args:
+    #     host (str): The target host IP address.
+    #     port (int): The port number to scan.
+    #     timeout (int): Connection timeout in seconds (default is 1).
+    
     try:
         # Create a socket object
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,21 +26,59 @@ def scan_port(host, port, timeout=2):
     except socket.error:
         pass
 
-#function that uses scan_port() to scan multiple ports
 def single_threaded_scan(host, ports, timeout=1):
+
+    # Function to perform single-threaded port scanning.
+    
+    # Args:
+    #     host (str): The target host IP address.
+    #     ports (list): List of ports to scan.
+    #     timeout (int): Connection timeout in seconds (default is 1).
+
     print(f"Scanning host {host}...")
     for port in ports:
         scan_port(host, port, timeout)
 
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(description="Simple port scanner")
-#     parser.add_argument("host", help="Target host IP address")
-#     parser.add_argument("-p", "--ports", help="Ports to scan (comma-separated)", default="1-1024")
-#     parser.add_argument("-t", "--timeout", type=float, help="Connection timeout in seconds", default=1)
-#     args = parser.parse_args()
+def multi_threaded_scan(host, ports, threads=5, timeout=1):
 
-#     # Parse port range
-#     start_port, end_port = map(int, args.ports.split("-") if "-" in args.ports else (args.ports, args.ports))
-#     ports_to_scan = range(start_port, end_port + 1)
+    # Function to perform multi-threaded port scanning.
+    
+    # Args:
+    #     host (str): The target host IP address.
+    #     ports (list): List of ports to scan.
+    #     threads (int): Number of threads to use for scanning (default is 5).
+    #     timeout (int): Connection timeout in seconds (default is 1).
 
-#     single_threaded_scan(args.host, ports_to_scan, args.timeout)
+    print(f"Scanning host {host} with {threads} threads...")
+    for i in range(0, len(ports), threads):
+        thread_list = []
+        for port in ports[i:i+threads]:
+            thread = threading.Thread(target=scan_port, args=(host, port, timeout))
+            thread_list.append(thread)
+            thread.start()
+        for thread in thread_list:
+            thread.join()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Simple port scanner")
+    parser.add_argument("host", help="Target host IP address")
+    parser.add_argument("-p", "--ports", help="Ports to scan (comma-separated)", default="1-1024")
+    parser.add_argument("-t", "--timeout", type=float, help="Connection timeout in seconds", default=1)
+    parser.add_argument("-T", "--threads", type=int, help="Number of threads to use", default=5)
+    args = parser.parse_args()
+
+    #parsing port range
+    #to run = python host -p (1-..)
+    start_port, end_port = map(int, args.ports.split("-") if "-" in args.ports else (args.ports, args.ports))
+    ports_to_scan = range(start_port, end_port + 1)
+    
+    #parsing ports individually
+    #to run = python host -p 1,2..
+    ports_to_scan = []
+    if args.ports:
+        ports_to_scan = [int(port) for port in args.ports.split(",")]
+
+    if args.threads == 1:
+        single_threaded_scan(args.host, ports_to_scan, args.timeout)
+    else:
+        multi_threaded_scan(args.host, ports_to_scan, args.threads, args.timeout)
