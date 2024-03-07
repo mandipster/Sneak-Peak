@@ -21,9 +21,9 @@ Usage:
 
 To use the port scanner, execute the main.py script with the following command-line arguments:
 
-python main.py <host> -p <ports>
+python main.py 'host' -p 'ports'
 
-Replace <host> with the target host IP address and <ports> with the comma-separated list of ports to scan. For example (Output for Windows.png):
+Replace 'host' with the target host IP address and 'ports' with the comma-separated list of ports to scan. For example (Output for Windows.png):
 
 python main.py google.com -p 80,443
 
