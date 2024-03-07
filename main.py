@@ -2,6 +2,22 @@ import socket
 import argparse
 import threading
 
+# Dictionary mapping port numbers to service names
+SERVICE_PORTS = {
+    21: "FTP",
+    22: "SSH",
+    23: "Telnet",
+    25: "SMTP",
+    53: "DNS",
+    80: "HTTP",
+    110: "POP3",
+    143: "IMAP",
+    443: "HTTPS",
+    3306: "MySQL",
+    3389: "RDP"
+    # We can add more services if needed
+}
+
 def scan_port(host, port, timeout=1):
 
     # Function to check if a port on the host is open or closed.
@@ -20,7 +36,8 @@ def scan_port(host, port, timeout=1):
         result = s.connect_ex((host, port))
         # Check if the port is open
         if result == 0:
-            print(f"Port {port} is open")
+            service = SERVICE_PORTS.get(port, "Unknown")
+            print(f"Port {port} ({service}) is open")
         # Close the socket
         s.close()
     except socket.error:
@@ -67,10 +84,10 @@ if __name__ == "__main__":
     parser.add_argument("-T", "--threads", type=int, help="Number of threads to use", default=5)
     args = parser.parse_args()
 
-    #parsing port range
-    #to run = python host -p (1-..)
-    start_port, end_port = map(int, args.ports.split("-") if "-" in args.ports else (args.ports, args.ports))
-    ports_to_scan = range(start_port, end_port + 1)
+    # #parsing port range
+    # #to run = python host -p (1-..)
+    # start_port, end_port = map(int, args.ports.split("-") if "-" in args.ports else (args.ports, args.ports))
+    # ports_to_scan = range(start_port, end_port + 1)
     
     #parsing ports individually
     #to run = python host -p 1,2..
